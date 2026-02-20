@@ -81,7 +81,6 @@ document.addEventListener('keydown', (e) => {
         nextDirection = { x: 1, y: 0 }
     }
 })
- 
 
 const gameOverDiv = document.getElementById("gameOver");
 const restartBtn = document.getElementById("restartBtn");
@@ -99,7 +98,8 @@ function animate(currentTime) {
     requestAnimationFrame(animate);
     fruitMesh.rotation.x += 0.01
     if (!gameOver && currentTime - lastUpdatedTime > updateInterval) {
-        console.log(updateInterval);
+        if(score == 8) updateInterval = 250;
+        if(score == 16) updateInterval = 200;
         updateSnake();
         renderSnake(snake, snakeSegments, scene);
         lastUpdatedTime = currentTime;
@@ -109,6 +109,5 @@ function animate(currentTime) {
     }
     renderer.render(scene, camera);
 }
-
 animate(0);
 renderSnake(snake, snakeSegments, scene);
