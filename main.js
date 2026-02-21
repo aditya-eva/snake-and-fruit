@@ -40,7 +40,7 @@ const scoreBoard = document.querySelector(".score");
 
 windowResize(camera, renderer);
 
-
+const finalScore = document.getElementById("finalScore")
 function updateSnake() {
     // Apply nextDirection to Direction
     direction = { ...nextDirection };
@@ -51,12 +51,16 @@ function updateSnake() {
     };
     if(newHead.x < 0 || newHead.x > gridSize || newHead.y < 0 || newHead.y > gridSize ) {
         gameOver = true;
+        updateLeaderboard();
+        finalScore.innerText = score;
         gameOverDiv.classList.remove("hidden");
         return;
     }
     let ans = snake.some((point) => point.x === newHead.x && point.y === newHead.y);
     if(ans) {
         gameOver = true;
+        updateLeaderboard();
+        finalScore.innerText = score;
         gameOverDiv.classList.remove("hidden");
         return;
     }
@@ -98,16 +102,59 @@ document.addEventListener('keydown', (e) => {
 const gameOverDiv = document.getElementById("gameOver");
 const restartBtn = document.getElementById("restartBtn");
 const startScreen = document.getElementById("startScreen");
-const finalScore = document.getElementById("finalScore");
 const highScoreElement = document.getElementById("highScore");
+const playerNameInput = document.getElementById("playerName");
+const startBtn = document.getElementById("startBtn");
+const leaderboardList = document.getElementById("leaderboardList");
+let playerName = "";
+
+let leaderboard = JSON.parse(localStorage.getItem("snakeLeaderboard")) || [
+    {name: "Aditya Mohaty", score: 2000},
+    {name: "Virat Kohli", score: 83},
+    {name: "Rohit Sharma", score: 62},
+    {name: "Pat cummins", score: 14}
+];
+
 let highScore = localStorage.getItem("snakeHighScore");
 if (highScore === null) {
-    highScore = 0;
+    highScore = 2000;
+    localStorage.setItem("snakeHighScore", highScore);
 } else {
     highScore = Number(highScore);
 }
-
 highScoreElement.innerText = highScore;
+
+startBtn.addEventListener("click", () => {
+    const name = playerNameInput.value.trim();
+    if (name === "") {
+        alert("Please enter your name!");
+        return;
+    }
+    playerName = name;
+    gameStarted = true;
+    startScreen.classList.add("hidden");
+});
+
+function updateLeaderboard() {
+    if (!playerName) return;
+    leaderboard.push({ name: playerName, score: score });
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 5);
+    localStorage.setItem("snakeLeaderboard", JSON.stringify(leaderboard));
+    renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    leaderboardList.innerHTML = "";
+    leaderboard.forEach((player, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <span>${index + 1}. ${player.name}</span>
+            <span>${player.score}</span>
+        `;
+        leaderboardList.appendChild(li);
+    });
+}
 
 restartBtn.addEventListener('click', () => {
     restartGame(snakeSegments, snake, direction, nextDirection, scene);
@@ -129,11 +176,8 @@ function animate(currentTime) {
         renderSnake(snake, snakeSegments, scene);
         lastUpdatedTime = currentTime;
     }
-    if(gameOver) {
-        finalScore.innerText = score;
-        gameOverDiv.classList.remove("hidden");   
-    }
     renderer.render(scene, camera);
 }
 animate(0);
 renderSnake(snake, snakeSegments, scene);
+renderLeaderboard();

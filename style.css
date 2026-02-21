@@ -133,3 +133,54 @@ body {
     transform: scale(1);
   }
 }
+
+/* Player name input */
+#playerName {
+  width: 80%;
+  padding: 10px;
+  margin: 15px 0;
+  border-radius: 8px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+}
+
+#startBtn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #00ff88;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+/* Leaderboard */
+#leaderboard {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  background: rgba(0,0,0,0.7);
+  padding: 15px;
+  border-radius: 12px;
+  width: 200px;
+  box-shadow: 0 0 15px rgba(0,255,100,0.4);
+}
+
+#leaderboard h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+#leaderboard ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#leaderboard li {
+  padding: 5px 0;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}

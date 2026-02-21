@@ -8,19 +8,19 @@
   <body>
     <div id="startScreen" class="overlay">
       <div class="menu-box">
-        <h1 class="game-title">SNAKE 3D</h1>
+        <h1 class="game-title">SNAKE AND FRUIT</h1>
 
-        <p class="tagline">Eat fruits. Grow longer. Don’t crash.</p>
+        <input 
+          type="text" 
+          id="playerName" 
+          placeholder="Enter your name"
+          maxlength="15"
+        />
+
+        <button id="startBtn">Start Game</button>
 
         <div class="instructions">
-          <h3>🎮 Controls</h3>
-          <p>⬆ ⬇ ⬅ ➡ Arrow Keys to Move</p>
-          <p>Press <span>Space</span> to Start</p>
-        </div>
-
-        <div class="objective">
-          <h3>Objective</h3>
-          <p>Score as much as possible without hitting walls or yourself.</p>
+          <p>⬆ ⬇ ⬅ ➡ Arrow Keys</p>
         </div>
       </div>
     </div>
@@ -41,6 +41,10 @@
         <p>High Score</p>
         <p id="highScore">0</p>
       </div>
+    </div>
+    <div id="leaderboard">
+      <h3>Top 5 Players</h3>
+      <ul id="leaderboardList"></ul>
     </div>
     <script type="module" src="/main.js"></script>
   </body>
