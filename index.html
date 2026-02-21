@@ -6,17 +6,41 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <div id="startScreen" class="overlay">
+      <div class="menu-box">
+        <h1 class="game-title">SNAKE 3D</h1>
+
+        <p class="tagline">Eat fruits. Grow longer. Don’t crash.</p>
+
+        <div class="instructions">
+          <h3>🎮 Controls</h3>
+          <p>⬆ ⬇ ⬅ ➡ Arrow Keys to Move</p>
+          <p>Press <span>Space</span> to Start</p>
+        </div>
+
+        <div class="objective">
+          <h3>Objective</h3>
+          <p>Score as much as possible without hitting walls or yourself.</p>
+        </div>
+      </div>
+    </div>
     <div id="gameOver" class="overlay hidden">
-      <div class="gameover-box">
+      <div class="menu-box">
         <h1>Game Over</h1>
+        <p class="final-score">Your Score: <span id="finalScore">0</span></p>
         <button id="restartBtn">Restart</button>
       </div>
     </div>
     <div id="score-board">
-      <p>Score</p>
-      <p class="score">
-        0
-      </p>
+      <div class="score-item">
+        <p>Score</p>
+        <p class="score">0</p>
+      </div>
+
+      <div class="score-item">
+        <p>High Score</p>
+        <p id="highScore">0</p>
+      </div>
     </div>
     <script type="module" src="/main.js"></script>
   </body>

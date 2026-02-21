@@ -51,11 +51,13 @@ function updateSnake() {
     };
     if(newHead.x < 0 || newHead.x > gridSize || newHead.y < 0 || newHead.y > gridSize ) {
         gameOver = true;
+        gameOverDiv.classList.remove("hidden");
         return;
     }
     let ans = snake.some((point) => point.x === newHead.x && point.y === newHead.y);
     if(ans) {
         gameOver = true;
+        gameOverDiv.classList.remove("hidden");
         return;
     }
     // add new Head at the beggining
@@ -63,6 +65,11 @@ function updateSnake() {
     if(newHead.x === fruit.x && newHead.y === fruit.y) {
         score++;
         scoreBoard.innerHTML = score;
+        if (score > highScore) {
+            highScore = score;
+            highScoreElement.innerText = highScore;
+            localStorage.setItem("snakeHighScore", highScore);
+        }
         makeNewFruit(gridSize, fruit, fruitMesh, snake)
     } else {
         // remove last element
@@ -71,6 +78,12 @@ function updateSnake() {
 }
 
 document.addEventListener('keydown', (e) => {
+    if (e.code === "Space" && !gameStarted) {
+        gameStarted = true;
+        startScreen.classList.add("hidden");
+        return;
+    }
+    if (!gameStarted || gameOver) return;
     if (e.key === 'ArrowUp' && direction.x !== 0) {
         nextDirection = { x: 0, y: -1 }
     } else if (e.key === 'ArrowDown' && direction.x !== 0) {
@@ -84,20 +97,32 @@ document.addEventListener('keydown', (e) => {
 
 const gameOverDiv = document.getElementById("gameOver");
 const restartBtn = document.getElementById("restartBtn");
-       
+const startScreen = document.getElementById("startScreen");
+const finalScore = document.getElementById("finalScore");
+const highScoreElement = document.getElementById("highScore");
+let highScore = localStorage.getItem("snakeHighScore");
+if (highScore === null) {
+    highScore = 0;
+} else {
+    highScore = Number(highScore);
+}
+
+highScoreElement.innerText = highScore;
+
 restartBtn.addEventListener('click', () => {
     restartGame(snakeSegments, snake, direction, nextDirection, scene);
     score = 0;
     gameOver = false;
     gameStarted = false;
-    gameOverDiv.style.display = "none";   
+    gameOverDiv.classList.add("hidden");
+    startScreen.classList.remove("hidden");
     scoreBoard.innerText = score;
 })
 
 function animate(currentTime) {
     requestAnimationFrame(animate);
     fruitMesh.rotation.x += 0.01
-    if (!gameOver && currentTime - lastUpdatedTime > updateInterval) {
+    if (!gameOver && gameStarted && currentTime - lastUpdatedTime > updateInterval) {
         if(score == 8) updateInterval = 250;
         if(score == 16) updateInterval = 200;
         updateSnake();
@@ -105,7 +130,8 @@ function animate(currentTime) {
         lastUpdatedTime = currentTime;
     }
     if(gameOver) {
-        gameOverDiv.style.display = "block";   
+        finalScore.innerText = score;
+        gameOverDiv.classList.remove("hidden");   
     }
     renderer.render(scene, camera);
 }
