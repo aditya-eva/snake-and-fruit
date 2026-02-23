@@ -9,8 +9,10 @@ import renderer from './core/renderer';
 import { restartGame } from './gameComponents/restartGame';
 import { windowResize } from './core/windowResizing';
 
+
 const gridSize = 20;
-let snake = [{ x: 6, y: 6 }]
+let snake = [{ x: 6, y: 6 }];
+let previousSnake = JSON.parse(JSON.stringify(snake));
 let fruit = { x: 5, y: 5 }
 let direction = { x: 1, y: 0 }
 let nextDirection = { x: 1, y: 0 }
@@ -18,27 +20,36 @@ let score = 0
 let gameOver = false
 let gameStarted = false
 let lastUpdatedTime = 0
-let updateInterval = 300
+let updateInterval = 180
+
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("black");
 
+
 const camera = perspectiveCamera(gridSize);
 scene.add(camera);
 
+
 renderer
+
 
 addLights(scene);
 
+
 createBoard(gridSize, scene);
+
 
 const fruitMesh = createFruit(scene);
 fruitMesh.position.set(fruit.x, 0.5, fruit.y);
 
+
 let snakeSegments = [];
 const scoreBoard = document.querySelector(".score");
 
+
 windowResize(camera, renderer);
+
 
 const finalScore = document.getElementById("finalScore")
 function updateSnake() {
@@ -81,6 +92,7 @@ function updateSnake() {
     }
 }
 
+
 document.addEventListener('keydown', (e) => {
     if (e.code === "Space" && !gameStarted) {
         gameStarted = true;
@@ -99,6 +111,7 @@ document.addEventListener('keydown', (e) => {
     }
 })
 
+
 const gameOverDiv = document.getElementById("gameOver");
 const restartBtn = document.getElementById("restartBtn");
 const startScreen = document.getElementById("startScreen");
@@ -108,12 +121,14 @@ const startBtn = document.getElementById("startBtn");
 const leaderboardList = document.getElementById("leaderboardList");
 let playerName = "";
 
+
 let leaderboard = JSON.parse(localStorage.getItem("snakeLeaderboard")) || [
     {name: "Aditya Mohaty", score: 2000},
     {name: "Virat Kohli", score: 83},
     {name: "Rohit Sharma", score: 62},
     {name: "Pat cummins", score: 14}
 ];
+
 
 let highScore = localStorage.getItem("snakeHighScore");
 if (highScore === null) {
@@ -123,6 +138,7 @@ if (highScore === null) {
     highScore = Number(highScore);
 }
 highScoreElement.innerText = highScore;
+
 
 startBtn.addEventListener("click", () => {
     const name = playerNameInput.value.trim();
@@ -135,6 +151,7 @@ startBtn.addEventListener("click", () => {
     startScreen.classList.add("hidden");
 });
 
+
 function updateLeaderboard() {
     if (!playerName) return;
     leaderboard.push({ name: playerName, score: score });
@@ -143,6 +160,7 @@ function updateLeaderboard() {
     localStorage.setItem("snakeLeaderboard", JSON.stringify(leaderboard));
     renderLeaderboard();
 }
+
 
 function renderLeaderboard() {
     leaderboardList.innerHTML = "";
@@ -156,6 +174,7 @@ function renderLeaderboard() {
     });
 }
 
+
 restartBtn.addEventListener('click', () => {
     restartGame(snakeSegments, snake, direction, nextDirection, scene);
     score = 0;
@@ -166,17 +185,65 @@ restartBtn.addEventListener('click', () => {
     scoreBoard.innerText = score;
 })
 
+
+let accumulator = 0;
+
+
 function animate(currentTime) {
     requestAnimationFrame(animate);
-    fruitMesh.rotation.x += 0.01
-    if (!gameOver && gameStarted && currentTime - lastUpdatedTime > updateInterval) {
-        if(score == 8) updateInterval = 250;
-        if(score == 16) updateInterval = 200;
+
+
+    if (!lastUpdatedTime) lastUpdatedTime = currentTime;
+
+
+    const delta = currentTime - lastUpdatedTime;
+    lastUpdatedTime = currentTime;
+
+
+    accumulator += delta;
+
+
+    while (accumulator >= updateInterval) {
+        previousSnake = JSON.parse(JSON.stringify(snake));
         updateSnake();
-        renderSnake(snake, snakeSegments, scene);
-        lastUpdatedTime = currentTime;
+        accumulator -= updateInterval;
     }
+
+
+    const alpha = accumulator / updateInterval;
+
+
+    renderSnakeInterpolated(snake, previousSnake, alpha);
+
+
     renderer.render(scene, camera);
+}
+
+
+function renderSnakeInterpolated(currentSnake, previousSnake, alpha) {
+    currentSnake.forEach((segment, index) => {
+        if (!snakeSegments[index]) {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: "lime" });
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            snakeSegments.push(mesh);
+        }
+
+
+        const prev = previousSnake[index] || segment;
+
+
+        const interpolatedX = prev.x + (segment.x - prev.x) * alpha;
+        const interpolatedY = prev.y + (segment.y - prev.y) * alpha;
+
+
+        snakeSegments[index].position.set(interpolatedX, 0.5, interpolatedY);
+    });
+    while (snakeSegments.length > currentSnake.length) {
+        const mesh = snakeSegments.pop();
+        scene.remove(mesh);
+    }
 }
 animate(0);
 renderSnake(snake, snakeSegments, scene);
