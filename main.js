@@ -192,6 +192,11 @@ let accumulator = 0;
 function animate(currentTime) {
     requestAnimationFrame(animate);
 
+    if(!gameStarted || gameOver) {
+        renderer.render(scene, camera);
+        return;
+    }
+
 
     if (!lastUpdatedTime) lastUpdatedTime = currentTime;
 
